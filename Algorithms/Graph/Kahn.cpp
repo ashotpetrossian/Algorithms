@@ -55,9 +55,3 @@ void KahnAlgorithm(int n/*number of vertices*/, const std::vector<std::pair<int,
         std::cout << "Cycle detected! No valid topological sorting." << std::endl;
     }
 }
-
-int main()
-{
-    std::vector<std::pair<int, int>> edges = {{0, 1}, {1, 2}, {2, 0}};
-    KahnAlgorithm(4, edges);
-}
