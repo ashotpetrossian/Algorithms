@@ -47,8 +47,8 @@ public:
             }
         }
 
-        // for (int i : dist) std::cout << i << " ";
-        // std::cout << std::endl;
+        for (int i : dist) std::cout << i << " ";
+        std::cout << std::endl;
     }
 
 private:
