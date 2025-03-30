@@ -1,17 +1,17 @@
 #include <vector>
 #include <iostream>
 
-class ArticulationPointSolver
+class BridgeSolver
 {
 public:
-    ArticulationPointSolver(const std::vector<std::vector<int>>& adjList) : graph{ adjList }, n{ adjList.size() }
+    BridgeSolver(const std::vector<std::vector<int>>& adjList) : graph{ adjList }, n{ adjList.size() }
     {
         parent.resize(n, -1);
         lowLink.resize(n);
         times.resize(n, -1);
     }
 
-    std::vector<int> solve()
+    std::vector<std::pair<int, int>> solve()
     {
         for (int u{}; u < n; ++u) {
             if (times[u] == -1) {
@@ -19,28 +19,23 @@ public:
             }
         }
 
-        return articulationPoints;
+        return bridges;
     }
 
     void dfs(int u)
     {
         times[u] = lowLink[u] = time++;
-        int childrenCount{};
 
         for (int v : graph[u]) {
             if (times[v] == -1) {
                 parent[v] = u;
-                ++childrenCount;
 
                 dfs(v);
 
                 lowLink[u] = std::min(lowLink[u], lowLink[v]);
-
-                // case 1: source is the dfs's root
-                if (parent[u] == -1 && childrenCount > 1) {
-                    articulationPoints.push_back(u);
-                } else if (parent[u] != -1 && lowLink[v] >= times[u]) { // case 2: no back edge from child to any ancestor
-                    articulationPoints.push_back(u);
+                // if no back edge
+                if (lowLink[v] > times[u]) {
+                    bridges.push_back({u, v});
                 }
             } else if (v != parent[u]) {
                 lowLink[u] = std::min(lowLink[u], times[v]);
@@ -50,7 +45,7 @@ public:
     
 private:
     std::vector<std::vector<int>> graph;
-    std::vector<int> articulationPoints;
+    std::vector<std::pair<int, int>> bridges;
     std::vector<int> parent;
     std::vector<int> lowLink;
     std::vector<int> times;
@@ -69,13 +64,13 @@ void test1()
         {0}
     };
 
-    ArticulationPointSolver solver{adjList};
-    std::vector<int> points{solver.solve()};
+    BridgeSolver solver{adjList};
+    std::vector<std::pair<int, int>> bridges{solver.solve()};
 
-    if (points.empty()) {
-        std::cout << "There are no articulation points" << std::endl;
+    if (bridges.empty()) {
+        std::cout << "There are no bridges" << std::endl;
     } else {
-        for (int point : points) std::cout << point << " ";
+        for (auto [u, v] : bridges) std::cout << u << " - " << v << ", ";
         std::cout << std::endl;
     }
 }
@@ -92,13 +87,13 @@ void test2()
         {5}
     };
 
-    ArticulationPointSolver solver{adjList};
-    std::vector<int> points{solver.solve()};
-    
-    if (points.empty()) {
-        std::cout << "There are no articulation points" << std::endl;
+    BridgeSolver solver{adjList};
+    std::vector<std::pair<int, int>> bridges{solver.solve()};
+
+    if (bridges.empty()) {
+        std::cout << "There are no bridges" << std::endl;
     } else {
-        for (int point : points) std::cout << point << " ";
+        for (auto [u, v] : bridges) std::cout << u << " - " << v << ", ";
         std::cout << std::endl;
     }
 }
@@ -113,13 +108,13 @@ void test3()
         {3}
     };
 
-    ArticulationPointSolver solver{adjList};
-    std::vector<int> points{solver.solve()};
-    
-    if (points.empty()) {
-        std::cout << "There are no articulation points" << std::endl;
+    BridgeSolver solver{adjList};
+    std::vector<std::pair<int, int>> bridges{solver.solve()};
+
+    if (bridges.empty()) {
+        std::cout << "There are no bridges" << std::endl;
     } else {
-        for (int point : points) std::cout << point << " ";
+        for (auto [u, v] : bridges) std::cout << u << " - " << v << ", ";
         std::cout << std::endl;
     }
 }
