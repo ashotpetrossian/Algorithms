@@ -1,6 +1,22 @@
 #include <vector>
 #include <iostream>
 
+/*
+ * BridgeSolver: A class for finding all bridges (critical edges) in an undirected graph.
+ * 
+ * A bridge (or cut-edge) is an edge in a graph that, when removed, increases the number of connected components.
+ * This implementation uses Depth-First Search (DFS) and Tarjan’s Algorithm to efficiently find bridges.
+ * 
+ * The algorithm assigns each node a discovery time and a low-link value.
+ * If a node v has no back edge to any of its ancestors in the DFS tree, then the edge (u, v) is a bridge.
+ * 
+ * Input: 
+ * - An adjacency list representation of an undirected graph.
+ * 
+ * Output:
+ * - A list of bridges (pairs of nodes representing critical edges).
+ */
+
 class BridgeSolver
 {
 public:

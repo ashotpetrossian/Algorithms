@@ -1,6 +1,22 @@
 #include <vector>
 #include <iostream>
 
+/*
+ * Articulation Point Finder (Graph Algorithm)
+ * 
+ * This program implements an algorithm to find articulation points in an undirected graph.
+ * Articulation points are vertices that, when removed, increase the number of connected components.
+ * The algorithm uses Depth-First Search (DFS) to determine articulation points efficiently.
+ *
+ * Key Components:
+ * - `ArticulationPointSolver` class: Implements Tarjan's Algorithm to identify articulation points.
+ * - `solve()`: Entry function to find and return articulation points in the given graph.
+ * - `dfs(int u)`: Recursive DFS function that computes discovery times and low-link values.
+ *
+ * The program includes three test cases (`test1`, `test2`, `test3`) that demonstrate the algorithm
+ * on different graphs, outputting articulation points for each.
+ */
+
 class ArticulationPointSolver
 {
 public:
