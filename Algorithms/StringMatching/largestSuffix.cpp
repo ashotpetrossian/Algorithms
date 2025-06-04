@@ -231,6 +231,8 @@ We skipped s[2...] as a comparison candidate because we knew it couldn't be the 
 (which lost to s[1...]) and started with 'a' (which is less than 'b', the character that made s[1...] win).
 */
 
+// related problems in LeetCode: 1163, 3406
+
 std::string getLargestSuffix(const std::string& s)
 {
     int i{}, j{1}, n = s.size();
