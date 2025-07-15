@@ -6,6 +6,8 @@
 /*
     Shunting Yard Algorithm - Infix to Postfix Converter
 
+    Motivation: LeetCode 1597. Build Binary Expression Tree From Infix Expression
+
     This implementation uses Dijkstra's Shunting Yard algorithm to convert an infix mathematical expression
     (e.g., "3 + 4 * 2 / (1 - 5)") into a postfix (Reverse Polish Notation) expression (e.g., "3 4 2 * 1 5 - / +").
 
