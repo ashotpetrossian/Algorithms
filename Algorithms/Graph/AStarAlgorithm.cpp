@@ -17,34 +17,36 @@
  *   can be used.
  *
  * Algorithm flow:
- * 1. Initialize the open set with the start node, setting g(start) = 0.
- * 2. While the open set is not empty:
- *    a. Select the node u with the lowest f(u) = g(u) + h(u).
+ * 1. Initialize the priority queue with the start node, setting g(start) = 0.
+ * 2. While the priority queue is not empty:
+ *    a. Pop the node u with the lowest f(u) = g(u) + h(u).
  *    b. If u is the destination node, the shortest path is found.
- *    c. Move u from the open set to the closed set (expanded nodes).
+ *    c. Mark u as closed (fully explored).
  *    d. For each neighbor v of u:
- *       - Ignore if v is in the closed set.
+ *       - Ignore if v is closed.
  *       - Calculate tentative_g = g(u) + cost(u, v).
- *       - If v is not in the open set or tentative_g < g(v), update g(v), set parent[v] = u,
- *         and add v to the open set.
- * 3. If the open set is empty and the goal was not reached, no path exists.
+ *       - If tentative_g < g(v), update g(v), set parent[v] = u,
+ *         and push v into the priority queue.
+ * 3. If the priority queue becomes empty and the goal was not reached, no path exists.
  *
  * Time complexity:
- * - Generally between O(b^d) and O(E log V), where b is the branching factor,
- *   d is the solution depth, E is the number of edges, and V is the number of vertices.
- * - The efficiency heavily depends on the heuristic quality.
+ * - Worst-case between O(b^d) and O(E log V):
+ *   - b = average branching factor (number of neighbors per node).
+ *   - d = solution depth (number of edges along the shortest path from start to goal).
+ * - In practice, A* explores far fewer nodes than O(b^d) due to heuristic pruning.
+ * - The efficiency heavily depends on the heuristic quality: better heuristics reduce the explored nodes.
  *
  * Space complexity:
- * - O(V) for storing open and closed sets, distances, parents, and heuristic values.
+ * - O(V) for storing distances, parents, heuristic values, and closed nodes.
  *
  * Implementation details:
  * - The graph is represented as an adjacency list with weighted edges.
  * - Heuristic values are precomputed using Manhattan distance relative to the destination coordinates.
  * - A priority queue manages nodes ordered by their f-score (estimated total cost).
- * - The closed set tracks nodes already fully explored.
- * - The open set tracks nodes available for exploration.
+ * - Closed nodes are tracked in a boolean vector.
  * - Path reconstruction follows parent pointers from destination to source after completion.
  */
+
 
 
 #include <vector>
@@ -58,12 +60,21 @@
 class AStarSolver
 {
 public:
-    AStarSolver(const std::vector<std::vector<int>> &grid, const std::vector<std::tuple<int, int, int>>& edges, int src, int dst, int numberOfVertices) : source{src}, destination{dst}, V{numberOfVertices}
+    AStarSolver(const std::vector<std::vector<int>> &grid, const std::vector<std::tuple<int, int, int>>& edges, int src, int dst, int numberOfVertices)
+        : source{src}, destination{dst}, V{numberOfVertices}
     {
-        graph.resize(V);
-        heuristicValues.resize(V);
+        if (V <= 0) throw std::invalid_argument("Number of Vertices should be > 0");
+        graph.assign(V, {});
+        heuristicValues.assign(V, 0);
 
         for (auto [u, v, w] : edges) {
+            if (u < 0 || u >= V || v < 0 || v >= V) {
+                throw std::out_of_range("Edge contains node outside [0,V)");
+            }
+            if (w < 0) {
+                throw std::invalid_argument("Negative edge weights are not supported by A*");
+            }
+
             graph[u].push_back(std::make_pair(v, w));
             graph[v].push_back(std::make_pair(u, w));
         }
@@ -76,31 +87,27 @@ public:
         std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<>> pq;
         
         std::vector<bool> closed(V);
-        std::unordered_set<int> open;
 
         std::vector<int> dist(V, inf);
-        parent.resize(V, -1);
+        parent.assign(V, -1);
 
-        auto f = [this, &dist](int node)
-        {
+        auto f = [this, &dist](int node) {
             return dist[node] + heuristicValues[node];
         };
 
-        pq.push(std::make_pair(f(source), source));
-        open.insert(source);
         dist[source] = 0;
+        pq.push(std::make_pair(f(source), source));
 
-        while (!open.empty())
-        {
+        while (!pq.empty()) {
+            // popping all explored nodes
             while (!pq.empty() && closed[pq.top().second] == true) pq.pop();
+
             if (pq.empty()) break;
 
             auto [f_score, u] = pq.top();
             pq.pop();
-            open.erase(u);
 
-            if (u == destination)
-            {
+            if (u == destination) {
                 std::cout << "Destination found\n";
                 shortestDistance = dist[destination];
                 return true;
@@ -108,17 +115,13 @@ public:
 
             closed[u] = true;
 
-            for (auto [v, w] : graph[u])
-            {
+            for (auto [v, w] : graph[u])  {
                 if (closed[v] == true) continue;
 
                 int tentativeGValue = dist[u] + w;
-
-                if (tentativeGValue < dist[v])
-                {
+                if (tentativeGValue < dist[v]) {
                     dist[v] = tentativeGValue;
                     parent[v] = u;
-                    open.insert(v);
 
                     pq.push(std::make_pair(f(v), v));
                 }
@@ -178,12 +181,12 @@ public:
         auto [x, y] = getCoordinates(grid, destination);
 
         // caching all heuristic values
-        for (int i{}; i < grid.size(); ++i)
-        {
-            for (int j{}; j < grid[0].size(); ++j)
-            {
+        for (int i{}; i < grid.size(); ++i) {
+            for (int j{}; j < grid[0].size(); ++j) {
                 int u{grid[i][j]};
-                heuristicValues[u] = getManhattenDistance(i, j, x, y);
+                if (u != -1) {
+                    heuristicValues[u] = getManhattenDistance(i, j, x, y);
+                }
             }
         }
     }
