@@ -1,6 +1,8 @@
 import tkinter as tk
 import threading
 
+from typing import Optional
+
 class GridGUI:
     def __init__(self):
         self.root = tk.Tk()
@@ -9,7 +11,7 @@ class GridGUI:
         self.create_canvas()
         self.set_coordinates()
         self.grid = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
-        self.cell_rects = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        self.cell_rects: list[list[Optional[int]]] = [[None for _ in range(self.cols)] for _ in range(self.rows)]
 
         self.draw_rectangle()
         self.create_buttons_and_frame()
@@ -31,14 +33,18 @@ class GridGUI:
         self.root.title("A* Algorithm visualizer")
 
     def create_status_label(self):
-        self.status_label = tk.Label(self.root, text="",
-                                     font=("Segoe UI", 14), bg="white", fg="blue", anchor="w")
+        self.status_label = tk.Label(
+            self.root,
+            text="",
+            font=("Segoe UI", 14),
+            bg="white", fg="blue",
+            anchor="w"
+        )
         self.status_label.grid(row=0, column=0, sticky='nw', padx=30, pady=(15, 10))
 
     def create_algorithm_flow_label(self):
         self.algorithm_flow_label = tk.Label(
-            self.root,
-            text="",
+            self.root, text="",
             font=("Segoe UI", 12),
             fg="black",
             bg="white",
@@ -59,10 +65,8 @@ class GridGUI:
     def set_coordinates(self):
         self.start_x, self.start_y = 100, 100
         self.end_x, self.end_y = self.start_x + 700, self.start_y + 1000
-
         self.cell_width = 30
         self.cell_height = 30
-
         self.rows, self.cols = 20, 30
         
     def draw_rectangle(self):
@@ -120,11 +124,11 @@ class GridGUI:
             activebackground="#d9d9d9",
         )
         self.finish_button.pack(pady=8, fill='x')
-
-        self.run_button = tk.Button(
+        
+        self.astar_button = tk.Button(
             self.button_frame,
-            text="Start",
-            command=self.start_pathfinding,
+            text="Start A*",
+            command=lambda: self.start_pathfinding("astar"),
             font=button_font,
             relief="raised",
             bd=2,
@@ -134,7 +138,22 @@ class GridGUI:
             activebackground="#d9d9d9",
             state='disabled'
         )
-        self.run_button.pack(pady=20, fill='x')
+        self.astar_button.pack(pady=8, fill='x')
+
+        self.dijkstra_button = tk.Button(
+            self.button_frame,
+            text="Start Dijkstra",
+            command=lambda: self.start_pathfinding("dijkstra"),
+            font=button_font,
+            relief="raised",
+            bd=2,
+            padx=10,
+            pady=5,
+            bg="#f0f0f0",
+            activebackground="#d9d9d9",
+            state='disabled'
+        )
+        self.dijkstra_button.pack(pady=8, fill='x')
 
     
     def on_click(self, event):
@@ -165,17 +184,23 @@ class GridGUI:
                     self.canvas.itemconfig(self.cell_rects[row][col], fill='red')
                     self.update_status("Destination point set. Please press start.", "green")
                     self.endpoint_init_active = False
-                    self.run_button.config(state='normal')
+                    self.astar_button.config(state='normal')
+                    self.dijkstra_button.config(state='normal')
 
-    def move_robot(self, row, col):
-        if self.robot_position:
-            r, c = self.robot_position
-            if self.grid[r][c] != 2:
-                raise IndexError("The robot moves from some position where it has not been.")
+    def move_robot(self, row, col) -> None:
+        if self.robot_position is None:
+            raise RuntimeError("Robot position is not set")
+        
+        r, c = self.robot_position
+        if self.grid[r][c] != 2:
+            raise IndexError("The robot moves from some position where it has not been.")
 
         self.update_algorithm_flow(f"Robot moving to ({row}, {col})")
 
-        self.canvas.itemconfig(self.cell_rects[r][c], fill='yellow')
+        rect_id = self.cell_rects[r][c]
+        if rect_id is None:
+            raise RuntimeError(f"Canvas rectangle at ({r},{c}) is not initialized")
+        self.canvas.itemconfig(rect_id, fill='yellow')
         self.grid[r][c] = 0
         self.grid[row][col] = 2
         self.robot_position = row, col
@@ -189,10 +214,10 @@ class GridGUI:
     def set_start_callback(self, callback):
         self._start_callback = callback
 
-    def start_pathfinding(self):
+    def start_pathfinding(self, solver_type: str):
         self.update_status("Starting pathfinding algorithm...", "blue")
         if hasattr(self, '_start_callback'):
-            self._start_callback()
+            self._start_callback(solver_type)
 
     def run(self):
         self.root.mainloop()
