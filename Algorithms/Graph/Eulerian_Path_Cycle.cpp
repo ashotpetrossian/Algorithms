@@ -1,7 +1,3 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
 /**
  * @brief Eulerian Path / Cycle Solver for directed graphs.
  *
@@ -51,6 +47,9 @@
  * @endcode
  */
 
+#include <iostream>
+#include <vector>
+#include <algorithm>
 
 class EulerianPathSolver
 {
@@ -59,7 +58,7 @@ private:
     {
         int startNodes{}, endNodes{};
         int possibleStartNode{};
-        for (int i{}; i < n; ++i) {
+        for (std::size_t i{}; i < n; ++i) {
             if (std::abs(inDegree[i] - outDegree[i]) > 1) return false;
     
             if (inDegree[i] - outDegree[i] == 1) ++endNodes;
@@ -89,11 +88,11 @@ private:
     }
 
 public:
-    EulerianPathSolver(int V /* number of vertices */, const std::vector<std::pair<int, int>>& edges) : n{V}, numberOfEdges{edges.size()}
+    EulerianPathSolver(std::size_t numOfVertices, const std::vector<std::pair<int, int>>& edges) : n{numOfVertices}, numberOfEdges{edges.size()}
     {
-        graph.resize(n);
-        inDegree.resize(n);
-        outDegree.resize(n);
+        graph.assign(n, {});
+        inDegree.assign(n, 0);
+        outDegree.assign(n, 0);
 
         for (auto [u, v] : edges) {
             graph[u].push_back(v);
@@ -105,12 +104,12 @@ public:
     std::vector<int> solve()
     {
         int source{-1};
-        bool exists = pathExists(source);
+        bool exists{pathExists(source)};
 
         if (!exists) return {};
 
         std::vector<int> path;
-        auto outClone = outDegree;
+        auto outClone{outDegree};
         dfs(path, outClone, source);
 
         if (path.empty() || getNumberOfEdges() != path.size() - 1) return {};
@@ -123,7 +122,7 @@ public:
 
     void print()
     {
-        for (int i{}; i < n; ++i) {
+        for (std::size_t i{}; i < n; ++i) {
             std::cout << "Vertex: " << i << " -> ";
             for (int v : graph[i]) std::cout << v << ", ";
             std::cout << std::endl;
@@ -133,7 +132,7 @@ public:
 private:
     std::vector<std::vector<int>> graph;
     std::vector<int> inDegree, outDegree;
-    int n{};
+    std::size_t n{};
     std::size_t numberOfEdges{};
 };
 
@@ -165,7 +164,7 @@ void test2()
     };
 
     EulerianPathSolver solver(3, edges);
-    auto path = solver.solve();
+    auto path{solver.solve()};
 
     if (path.empty()) {
         std::cout << "Eulerian Path does not exist" << std::endl;
