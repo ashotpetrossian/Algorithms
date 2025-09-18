@@ -38,9 +38,9 @@ private:
 
     void propagateNegativeCycle()
     {
-        for (int k{}; k < n; ++k) {
-            for (int i{}; i < n; ++i) {
-                for (int j{}; j < n; ++j) {
+        for (std::size_t k{}; k < n; ++k) {
+            for (std::size_t i{}; i < n; ++i) {
+                for (std::size_t j{}; j < n; ++j) {
                     if (dp[i][k] != inf && dp[k][j] != inf && dp[i][k] + dp[k][j] < dp[i][j]) {
                         dp[i][j] = negInf; // no "shortest" path available
                         next[i][j] = -1;
@@ -54,8 +54,8 @@ public:
     {
         next.assign(n, std::vector<int>(n, -1)); // -1 indicates invalid paths
 
-        for (int i{}; i < n; ++i) {
-            for (int j{}; j < n; ++j) {
+        for (std::size_t i{}; i < n; ++i) {
+            for (std::size_t j{}; j < n; ++j) {
                 if (graph[i][j] != inf) {
                     next[i][j] = j; // from i to j
                 }
@@ -65,9 +65,9 @@ public:
 
     void solve()
     {
-        for (int k{}; k < n; ++k) {
-            for (int i{}; i < n; ++i) {
-                for (int j{}; j < n; ++j) {
+        for (std::size_t k{}; k < n; ++k) {
+            for (std::size_t i{}; i < n; ++i) {
+                for (std::size_t j{}; j < n; ++j) {
                     if (dp[i][k] != inf && dp[k][j] != inf && dp[i][k] + dp[k][j] < dp[i][j]) {
                         dp[i][j] = dp[i][k] + dp[k][j];
                         next[i][j] = next[i][k];
@@ -108,7 +108,7 @@ public:
 // normal testcase
 void normalTest()
 {
-    const int INF = std::numeric_limits<int>::max();
+    const int INF{std::numeric_limits<int>::max()};
 
     std::vector<std::vector<int>> graph = {
         {  0,  4, INF, INF, INF, INF, INF,  8, INF },
@@ -131,8 +131,9 @@ void normalTest()
     std::cout << "\n";
 }
 
-void testNegativeCycle() {
-    const int INF = std::numeric_limits<int>::max();
+void testNegativeCycle()
+{
+    const int INF{std::numeric_limits<int>::max()};
     std::vector<std::vector<int>> graph = {
         {0,    1,    INF},
         {INF,  0,   -1  },
@@ -146,13 +147,15 @@ void testNegativeCycle() {
         auto path = solver.reconstructPath(0, 2);
         for (int v : path) std::cout << v << " ";
         std::cout << "\n";
-    } catch (const std::logic_error& e) {
+    }
+    catch (const std::logic_error& e) {
         std::cout << "Negative cycle detected in path reconstruction.\n";
     }
 }
 
-void testNoPath() {
-    const int INF = std::numeric_limits<int>::max();
+void testNoPath()
+{
+    const int INF{std::numeric_limits<int>::max()};
     std::vector<std::vector<int>> graph = {
         {0,   5,   INF, INF},
         {INF, 0,   3,   INF},
@@ -168,14 +171,16 @@ void testNoPath() {
     int dist = solver.getShortestPath(0, 3);
     if (dist == INF) {
         std::cout << "No path from 0 to 3\n";
-    } else {
+    }
+    else {
         std::cout << "Shortest path from 0 to 3 = " << dist << "\n";
     }
 
     auto path = solver.reconstructPath(0, 3);
     if (path.empty()) {
         std::cout << "Path is empty, as expected.\n";
-    } else {
+    }
+    else {
         std::cout << "Unexpected path found: ";
         for (int v : path) std::cout << v << " ";
         std::cout << "\n";
