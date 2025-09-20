@@ -28,13 +28,15 @@
  *       Dynamic programming approach using bitmasking to count all Hamiltonian 
  *       paths while caching dead-end states to avoid redundant computations.
  *       This reduces redundant DFS calls compared to simpleSolver.
- *       Time complexity: O(n * 2^n), with space complexity O(n * 2^n) for the DP table.
+ *       Time complexity: O(n^2 * 2^n) for counting all paths in the worst case.
+ *       Space complexity: O(n * 2^n) for storing the DP table.
  * 
  * Note:
  *   - simpleSolver and pureSimpleSolver are primarily educational and for verification.
  *   - dpSolver is recommended for counting paths efficiently on moderately sized graphs.
  *   - Graphs with more than ~20 vertices may be infeasible due to exponential growth.
  */
+
 
 #include <iostream>
 #include <vector>
