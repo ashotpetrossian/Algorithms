@@ -1,0 +1,3 @@
+[submodule "Algorithms/Graph/Algorithms/Graph/googletest"]
+	path = Algorithms/Graph/Algorithms/Graph/googletest
+	url = https://github.com/google/googletest.git
